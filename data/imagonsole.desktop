@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=Pictures
+GenericName=Photo Viewer
+Comment=Look through your pictures with a controller
+Exec=imagonsole %f
+Icon=imagonsole
+Terminal=false
+Categories=Graphics;Viewer;Photography;
+MimeType=image/png;image/jpeg;image/gif;image/webp;image/bmp;image/tiff;image/x-icon;image/x-portable-anymap;image/x-targa;image/vnd-ms.dds;image/vnd.radiance;image/x-exr;
+Keywords=photo;photos;picture;pictures;image;images;viewer;gallery;slideshow;lxb;
+StartupNotify=true
+StartupWMClass=imagonsole
+X-GNOME-SingleWindow=true

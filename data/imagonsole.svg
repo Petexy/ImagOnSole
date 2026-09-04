@@ -1,0 +1,43 @@
+<svg data-lxb-material="lxb:shape" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!--
+    Imagonsole: two photographs, the front one with a scene cut through it.
+
+    Drawn in the shell's own glyph language rather than as a badge with a
+    background — the same 32-unit field, the same bead-and-holes construction,
+    and the same one colour. See LineXinBar's glyph sources, where the language
+    is set out: a glyph is one white body, and everything inside it is an
+    opening cut through that body rather than a mark laid on top.
+
+    The back photograph is a second body lying behind the front one, so a
+    crevice is cut where the two meet: what says the back print passes *behind*
+    the front is the seam along their shared edge, not a line drawn on it. That
+    is the `#front` stroked black and then refilled white, below.
+  -->
+  <defs>
+    <rect id="back" x="3.6" y="5.9" width="20.6" height="16.4" rx="2.4"
+          transform="rotate(-11 13.9 14.1)"/>
+    <rect id="front" x="8.0" y="10.2" width="20.6" height="16.4" rx="2.4"/>
+
+    <!-- What is cut through the front print: a sun, and two hills under it. -->
+    <g id="scene">
+      <circle cx="13.2" cy="15.3" r="1.9"/>
+      <path d="M10.8 24.2L15.9 16.3l3.7 4.9 2.9-3.9 4.4 6.9z"/>
+    </g>
+
+    <g id="bead"><use href="#back"/><use href="#front"/></g>
+
+    <mask id="pierced">
+      <use href="#bead" fill="#ffffff"/>
+      <!-- The crevice: the front print's own outline, taken out of the body
+           and then given back, so the two prints meet at a seam. -->
+      <use href="#front" fill="#000000" stroke="#000000" stroke-width="0.85"
+           stroke-linejoin="round"/>
+      <use href="#front" fill="#ffffff"/>
+      <use href="#scene" fill="#000000"/>
+    </mask>
+  </defs>
+
+  <g mask="url(#pierced)">
+    <use href="#bead" fill="#ffffff"/>
+  </g>
+</svg>

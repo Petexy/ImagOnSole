@@ -1,0 +1,16 @@
+Source: imagonsole
+Section: graphics
+Priority: optional
+Maintainer: Piotr Lewandowski <piotr.petexy@gmail.com>
+Build-Depends: debhelper-compat (= 13),
+               cargo,
+               rustc (>= 1.87),
+               pkg-config,
+               libasound2-dev,
+               lxb-toolkit-dev (>= @TOOLKIT_VERSION@)
+Standards-Version: 4.7.4
+Rules-Requires-Root: no
+
+Package: imagonsole
+Architecture: linux-any
+Description: a photo viewer in the LineXinBar design language, shown as Pictures

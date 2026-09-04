@@ -1,0 +1,83 @@
+[package]
+name = "imagonsole"
+version = "0.9.0"
+edition = "2021"
+rust-version = "1.87"
+license = "GPL-3.0-only"
+description = "A photo viewer in the LineXinBar design language, shown as Pictures"
+repository = "https://github.com/Petexy/imagonsole"
+
+[workspace]
+
+[dependencies]
+# The design language itself: colour, material, motion, type, metrics, marks
+# and what a control means. No dependencies of its own, and every value this
+# application draws is asked of it by name.
+lxb-toolkit = { version = "0.9.0", path = "/usr/share/lxb-toolkit/crates/lxb-toolkit" }
+
+# The renderer that answers those names with the real material — the glass, the
+# wallpaper behind it, the marks as beads of water, the context menu, the
+# dialog and the built-in file chooser — and which also says what is under the
+# pointer.
+#
+# This application does **not** use `lxb-app`, which is the window most
+# applications want. It draws its own, for one reason: `Ui::picture` reads a
+# file into a 512-pixel cell of a shared atlas, which is exactly right for the
+# cards of a grid and nowhere near enough for the thing this program exists to
+# show. A photograph filling a 4K screen out of a 512-pixel source is the one
+# defect a photo viewer cannot have. So the frame is composed by `lxb-render`
+# as everywhere else, and the photograph itself is drawn over it at its own
+# resolution by `src/photo.rs`. See the note at the top of that file.
+lxb-render = { version = "0.9.0", path = "/usr/share/lxb-toolkit/crates/lxb-render" }
+
+# Every controller on the machine and the keyboard, as one list of actions.
+lxb-input = { version = "0.9.0", path = "/usr/share/lxb-toolkit/crates/lxb-input", features = [
+    "winit",
+] }
+
+# The shell's own recordings, at the rests the language keeps.
+lxb-sound = { version = "0.9.0", path = "/usr/share/lxb-toolkit/crates/lxb-sound" }
+
+# Read directly for one thing only: how far the triggers are pulled. An action
+# says a thing happened and a trigger says how far, and zoom is the one control
+# here that wants the second. `lxb-input` reads this same crate and stays the
+# only thing that decides what any *button* means — see `src/pad.rs`. Pinned to
+# the version `lxb-input` asks for, so there is one copy in the binary.
+gilrs = "0.11.2"
+
+# Reading the photographs. The same crate `lxb-render` decodes its thumbnails
+# with, asked here for the whole picture instead of a corner of an atlas.
+image = { version = "0.25", default-features = false, features = [
+    "png",
+    "jpeg",
+    "gif",
+    "webp",
+    "bmp",
+    "tiff",
+    "ico",
+    "pnm",
+    "qoi",
+    "tga",
+    "dds",
+    "hdr",
+    "exr",
+    "rayon",
+] }
+
+# Writing one, which is all `--shot` needs.
+png = "0.17"
+
+bytemuck = { version = "1", features = ["derive"] }
+pollster = "0.4"
+wgpu = "30"
+winit = { version = "0.30", default-features = false, features = [
+    "rwh_06",
+    "wayland",
+    "wayland-dlopen",
+    "x11",
+] }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1

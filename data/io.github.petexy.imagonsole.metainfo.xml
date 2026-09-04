@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.petexy.imagonsole</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+
+  <name>Pictures</name>
+  <summary>Look through your pictures with a controller</summary>
+
+  <description>
+    <p>
+      Pictures is a photo viewer drawn in the LineXinBar design language: the
+      same colours, glass, motion and marks as the shell it was made for, and
+      driven from a controller, a keyboard and a pointer at once.
+    </p>
+    <p>
+      A folder is a grid of pictures the light travels across. Opening one
+      fills the screen with the photograph itself — at its own resolution,
+      not a thumbnail of it — and the pictures either side are read before they
+      are asked for, so stepping through a folder shows a photograph rather
+      than a wait for one.
+    </p>
+    <p>
+      In the viewer a direction pans wherever the picture is larger than the
+      screen and steps to the next one where it is not, so nothing has to be
+      switched on and the picture itself says what the controls will do. One
+      button walks the zoom stops: fit, actual size, twice and four times.
+      Pictures can be turned, played as a slideshow, and read about — how many
+      pixels, how large on disk, and when they were taken.
+    </p>
+    <p>
+      Photographs are shown the way up the camera held them, folders are sorted
+      the way somebody reads them — nine before ten — and every picture on the
+      screen is the file rather than a preview of it.
+    </p>
+    <p>It is an ordinary Wayland application and runs on any desktop.</p>
+  </description>
+
+  <launchable type="desktop-id">imagonsole.desktop</launchable>
+  <provides>
+    <binary>imagonsole</binary>
+  </provides>
+
+  <categories>
+    <category>Graphics</category>
+    <category>Viewer</category>
+    <category>Photography</category>
+  </categories>
+
+  <supports>
+    <control>gamepad</control>
+    <control>keyboard</control>
+    <control>pointing</control>
+  </supports>
+
+  <developer id="io.github.petexy">
+    <name>Piotr Lewandowski</name>
+  </developer>
+
+  <url type="homepage">https://github.com/Petexy/imagonsole</url>
+  <url type="bugtracker">https://github.com/Petexy/imagonsole/issues</url>
+
+  <content_rating type="oars-1.1"/>
+
+  <releases>
+    <release version="0.9.0" type="development" date="2026-08-31">
+      <description>
+        <p>The first release. A folder of pictures, and one picture at a time.</p>
+        <p>
+          This release shares its version with LineXinBar, lxb-toolkit,
+          DistriBumpy and CEDM.
+        </p>
+      </description>
+    </release>
+  </releases>
+</component>
