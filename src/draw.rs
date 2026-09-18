@@ -34,24 +34,24 @@ pub fn hints(view: &View) -> Vec<Hint> {
             // word changes with it rather than naming something that does not
             // happen.
             let mut hints = vec![
-                hint("Options", Button::Options),
+                hint(crate::i18n::text("options"), Button::Options),
                 if view.closes_on_back() {
-                    hint("Close", Button::Back)
+                    hint(crate::i18n::text("close"), Button::Back)
                 } else {
-                    hint("Back", Button::Back)
+                    hint(crate::i18n::text("back"), Button::Back)
                 },
             ];
             if view.folder.photographs() > 0 {
-                hints.insert(0, hint("Slideshow", Button::Start));
+                hints.insert(0, hint(crate::i18n::text("slideshow"), Button::Start));
             }
             if view.current().is_some() {
                 hints.insert(
                     0,
                     hint(
                         if view.current().is_some_and(|entry| entry.is_folder()) {
-                            "Open"
+                            crate::i18n::text("open")
                         } else {
-                            "View"
+                            crate::i18n::text("view")
                         },
                         Button::Accept,
                     ),
@@ -60,17 +60,17 @@ pub fn hints(view: &View) -> Vec<Hint> {
             hints
         }
         Mode::Viewer => vec![
-            hint("Zoom", Button::Accept),
-            hint("Slideshow", Button::Start),
-            hint("Options", Button::Options),
+            hint(crate::i18n::text("zoom"), Button::Accept),
+            hint(crate::i18n::text("slideshow"), Button::Start),
+            hint(crate::i18n::text("options"), Button::Options),
             // What the button really does, which is not always the same thing:
             // opened on one picture, there is nothing behind it to go back to
             // and Back closes. A legend that said "Back" there would be naming
             // something that does not happen.
             if view.closes_on_back() {
-                hint("Close", Button::Back)
+                hint(crate::i18n::text("close"), Button::Back)
             } else {
-                hint("Back", Button::Back)
+                hint(crate::i18n::text("back"), Button::Back)
             },
         ],
     }
@@ -189,9 +189,9 @@ fn grid(view: &mut View, ui: &mut Ui, geometry: &Geometry, icons: IconStyle) {
             ],
             Text::Body,
             if view.folder.unreadable {
-                "This folder cannot be opened"
+                crate::i18n::text("this-folder-cannot-be-opened")
             } else {
-                "No pictures here"
+                crate::i18n::text("no-pictures-here")
             },
             Role::TextSoft,
             Align::Centre,
@@ -275,20 +275,18 @@ fn grid(view: &mut View, ui: &mut Ui, geometry: &Geometry, icons: IconStyle) {
 fn count(view: &View) -> String {
     let pictures = view.folder.photographs();
     let folders = view.folder.entries.len() - pictures;
+    // Counts go to the catalog as numbers, never as text: the form of the noun
+    // is the language's decision and it makes it by looking at the number.
     match (pictures, folders) {
         (0, 0) => String::new(),
-        (0, folders) => plural(folders, "folder", "folders"),
-        (pictures, 0) => plural(pictures, "picture", "pictures"),
+        (0, folders) => crate::message!("count-folders", "count" => folders),
+        (pictures, 0) => crate::message!("count-pictures", "count" => pictures),
         (pictures, folders) => format!(
             "{}  ·  {}",
-            plural(pictures, "picture", "pictures"),
-            plural(folders, "folder", "folders")
+            crate::message!("count-pictures", "count" => pictures),
+            crate::message!("count-folders", "count" => folders)
         ),
     }
-}
-
-fn plural(count: usize, one: &str, many: &str) -> String {
-    format!("{count} {}", if count == 1 { one } else { many })
 }
 
 fn card(
@@ -473,7 +471,7 @@ fn viewer(
                     line,
                 ],
                 Text::Body,
-                "This picture cannot be shown",
+                crate::i18n::text("this-picture-cannot-be-shown"),
                 Role::TextSoft,
                 Align::Centre,
             );
@@ -491,7 +489,7 @@ fn viewer(
                         line,
                     ],
                     Text::Caption,
-                    "Reading…",
+                    crate::i18n::text("reading"),
                     Role::TextSoft,
                     Align::Centre,
                 );
@@ -524,7 +522,7 @@ fn position(view: &View) -> String {
     if total == 0 {
         return String::new();
     }
-    let mut said = format!("{} of {total}", before + 1);
+    let mut said = crate::message!("place-in-folder", "place" => before + 1, "total" => total);
     if let Zoom::Actual(scale) = view.zoom {
         said.push_str(&format!("  ·  {:.0}%", scale * 100.0));
     } else if view.fit > 0.0 {
@@ -587,15 +585,25 @@ fn details(
     };
 
     let name = fit_text(ui, Text::Body, &entry.name, inner);
-    say(ui, &mut at, "Name", &name);
+    say(ui, &mut at, crate::i18n::text("name"), &name);
     let size = photos
         .size(&entry.path)
         .map(|(width, height)| facts::pixels(width, height))
         .unwrap_or_default();
-    say(ui, &mut at, "Size", &size);
-    say(ui, &mut at, "On disk", &facts::size(entry.bytes));
+    say(ui, &mut at, crate::i18n::text("size"), &size);
+    say(
+        ui,
+        &mut at,
+        crate::i18n::text("on-disk"),
+        &facts::size(entry.bytes),
+    );
     if let Some(changed) = entry.changed {
-        say(ui, &mut at, "Written", &facts::when(changed));
+        say(
+            ui,
+            &mut at,
+            crate::i18n::text("written"),
+            &facts::when(changed),
+        );
     }
     let folder = entry
         .path
@@ -603,7 +611,7 @@ fn details(
         .map(|path| path.display().to_string())
         .unwrap_or_default();
     let folder = cut_from_the_front(ui, &folder, inner);
-    say(ui, &mut at, "Folder", &folder);
+    say(ui, &mut at, crate::i18n::text("folder"), &folder);
 }
 
 // ---- the head of the page ------------------------------------------------

@@ -19,6 +19,7 @@
 
 mod draw;
 mod facts;
+mod i18n;
 mod legend;
 mod library;
 mod pad;
@@ -57,12 +58,6 @@ use view::{Command, Geometry, Mode, View, Zoom};
 /// is for people and may be anything; this one is for matching a launched
 /// process to the window that appeared, and it has to agree in five places.
 const APP_ID: &str = "imagonsole";
-
-/// What it is called to a person, which is the name on the desktop entry, in
-/// the AppStream data and on the window. Imagonsole is the project, the
-/// package and the command; **Pictures** is the application — the same split
-/// DistriBumpy has, which ships as `distribumpy` and is shown as Software Hub.
-const TITLE: &str = "Pictures";
 
 /// What the window is drawn into. `Bgra8UnormSrgb` is what a Wayland surface
 /// wants; the picture's own pass is built for whichever this is, so that a
@@ -323,7 +318,7 @@ impl ApplicationHandler for Application {
             return;
         }
         let attributes = Window::default_attributes()
-            .with_title(TITLE)
+            .with_title(crate::i18n::text("app-title"))
             // An application on LineXinBar is maximised and pinned to the
             // display it launched on; this size is for every other desktop.
             .with_inner_size(winit::dpi::LogicalSize::new(1280.0, 800.0))

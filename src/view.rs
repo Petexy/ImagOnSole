@@ -917,7 +917,7 @@ impl View {
         self.note = self
             .folder
             .unreadable
-            .then(|| String::from("This folder cannot be opened"));
+            .then(|| String::from(crate::i18n::text("this-folder-cannot-be-opened")));
     }
 
     fn reread(&mut self) {
@@ -1084,28 +1084,28 @@ impl View {
         let mut rows: Vec<(MenuEntry, Command)> = Vec::new();
         if self.mode == Mode::Viewer {
             rows.push((
-                MenuEntry::new("Turn right").glyph("setting-rotation-90"),
+                MenuEntry::new(crate::i18n::text("turn-right")).glyph("setting-rotation-90"),
                 Command::Turn(1),
             ));
             rows.push((
-                MenuEntry::new("Turn left").glyph("setting-rotation-270"),
+                MenuEntry::new(crate::i18n::text("turn-left")).glyph("setting-rotation-270"),
                 Command::Turn(-1),
             ));
             rows.push((
-                MenuEntry::new("Fit to the screen")
+                MenuEntry::new(crate::i18n::text("fit-to-the-screen"))
                     .glyph("setting-scale")
                     .group(1),
                 Command::ZoomTo(Zoom::Fit),
             ));
             rows.push((
-                MenuEntry::new("Actual size").glyph("setting-resolution"),
+                MenuEntry::new(crate::i18n::text("actual-size")).glyph("setting-resolution"),
                 Command::ZoomTo(Zoom::Actual(1.0)),
             ));
             rows.push((
                 MenuEntry::new(if self.info {
-                    "Hide the details"
+                    crate::i18n::text("hide-the-details")
                 } else {
-                    "Show the details"
+                    crate::i18n::text("show-the-details")
                 })
                 .glyph("setting-info")
                 .group(2),
@@ -1113,9 +1113,9 @@ impl View {
             ));
             rows.push((
                 MenuEntry::new(if self.slideshow {
-                    "Stop the slideshow"
+                    crate::i18n::text("stop-the-slideshow")
                 } else {
-                    "Play a slideshow"
+                    crate::i18n::text("play-a-slideshow")
                 })
                 .glyph(if self.slideshow {
                     "media-pause"
@@ -1125,7 +1125,7 @@ impl View {
                 Command::Slideshow,
             ));
             rows.push((
-                MenuEntry::new("Back to the folder")
+                MenuEntry::new(crate::i18n::text("back-to-the-folder"))
                     .glyph("category-images")
                     .group(3),
                 Command::BackToGrid,
@@ -1153,25 +1153,25 @@ impl View {
         }
         rows.push((
             MenuEntry::new(if self.hidden {
-                "Hide hidden files"
+                crate::i18n::text("hide-hidden-files")
             } else {
-                "Show hidden files"
+                crate::i18n::text("show-hidden-files")
             })
             .glyph("setting-typed")
             .group(1),
             Command::ShowHidden,
         ));
         rows.push((
-            MenuEntry::new("Open another folder…")
+            MenuEntry::new(crate::i18n::text("open-another-folder"))
                 .glyph("file-folder")
                 .group(2),
             Command::OpenFolder,
         ));
         rows.push((
-            MenuEntry::new("Up a folder").glyph("arrow-up"),
+            MenuEntry::new(crate::i18n::text("up-a-folder")).glyph("arrow-up"),
             Command::UpAFolder,
         ));
-        (String::from("Options"), rows)
+        (String::from(crate::i18n::text("options")), rows)
     }
 
     // ---- how the picture sits on the stage --------------------------------
