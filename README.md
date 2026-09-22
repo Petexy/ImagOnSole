@@ -3,74 +3,80 @@
 **A photo viewer for [LineXinBar](https://github.com/Petexy/LineXinBar), driven
 by a controller. It is shown as *Pictures*.**
 
-`imagonsole` is the project, the package and the command; **Pictures** is what
-it is called on the desktop entry, in the menu and on the window — the same
-split [DistriBumpy](https://github.com/Petexy/distribumpy) has, which ships as
-`distribumpy` and is shown as Software Hub.
-
-Built on [lxb-toolkit](https://github.com/Petexy/lxb-toolkit): the shell's own
-colours, glass, motion, type and marks, so a folder of photographs sits beside
-the shell rather than in front of it.
-
-![A folder](docs/folder.png)
-
 [![Licence](https://img.shields.io/badge/licence-GPL--3.0--only-blue)](LICENSE)
 [![Version](https://img.shields.io/badge/version-0.9.0-informational)](VERSION)
 [![Rust](https://img.shields.io/badge/rust-1.87%2B-orange)](Cargo.toml)
 
----
+![A folder](docs/folder.png)
 
-## What it is
+`imagonsole` is the project, the package and the command; **Pictures** is what
+it is called on the desktop entry, in the menu and on the window. It is built
+on [lxb-toolkit](https://github.com/Petexy/lxb-toolkit) — the shell's own
+colours, glass, motion, type and marks — and it is an ordinary Wayland
+application, so it runs under GNOME or Plasma as readily as under the shell it
+was made for.
+
+Its siblings are [Videonsole](https://github.com/Petexy/videonsole) (Videos),
+[SongOnSole](https://github.com/Petexy/songonsole) (Music) and
+[DistriBumpy](https://github.com/Petexy/distribumpy) (Software Hub).
+
+## Use
 
 ```sh
 imagonsole                       # the pictures folder
 imagonsole ~/Holiday             # that folder
 imagonsole ~/Holiday/beach.jpg   # that picture, in its folder
+imagonsole --demo                # a made-up folder; nothing of yours is touched
 ```
 
-A folder is a grid the light travels across. **Only the card being looked at
-is drawn as something to press** — the rest are the picture and its name.
-A wall of pictures in which every one is a button is a wall with nothing picked
-out. Names too long for their card are cut out of the middle, so the end that
-says *which* screenshot this is survives along with the extension.
-
- Opening a picture fills the screen
-with **the photograph itself, at its own resolution** — not a thumbnail of it —
-and the pictures either side are read before they are asked for, so stepping
-through a folder shows a photograph rather than a wait for one. **One picture
-crosses to the next half again as fast as a panel moves** — stepping is the one
-thing anybody does repeatedly here, press and look and press again, and at a
-panel's speed it read as the viewer thinking about it in between.
+A folder is a grid the light travels across. **Only the card being looked at is
+drawn as something to press** — the rest are the picture and its name. Names
+too long for their card are cut out of the middle, so the end that says *which*
+screenshot this is survives along with the extension.
 
 ![One picture](docs/picture.png)
 
-## Opening one
+## What it does
 
-**A photograph opens out of the card it was pressed on, and goes back into
-it.** The thumbnail on that card grows until it fills the page, and the wall of
-pictures steps back and fades out behind it — the same gesture a page makes
-when a menu opens over it, at the size of a whole change of page. Back runs the
-whole of it in reverse: the picture shrinks into the card it came from,
-dissolving into the card's own thumbnail as it lands, while the wall comes
-forward.
+- **A photograph opens out of the card it was pressed on**, and goes back into
+  it. The crop a card puts on a thumbnail unwinds as it grows, so the first
+  frame is the card exactly and the last is the photograph exactly.
+- **The photograph itself, at its own resolution** — not a thumbnail of it. The
+  pictures either side are read before they are asked for, so stepping through
+  a folder shows a photograph rather than a wait for one, and one picture
+  crosses to the next half again as fast as a panel moves.
+- **Two kinds of zoom, because there are two kinds of control.** A button can
+  only say *now*, so `A` walks a ladder of stops — fit, actual size, twice,
+  four times — and springs between them. A trigger and a wheel say *how much*,
+  so they zoom continuously and are deliberately not sprung. A wheel zooms
+  about the pointer, so the picture grows towards the hand.
+- **One rule makes the directions unambiguous.** In the viewer a direction
+  *pans* wherever the picture is larger than the screen, and *steps to the next
+  picture* where it is not. Nothing has to be switched on, and the picture
+  itself says which it is going to be. A held direction pans on an accelerating
+  ramp, the way the shell moves a floating window.
+- **Back closes it at the top of the walk.** Whatever it was opened on is that
+  top, and the legend says **Close** rather than Back wherever pressing it
+  would close. Opened on a picture, Back closes; opened on a folder, Back walks
+  up to that folder and closes there rather than carrying on out to the root of
+  the disk.
+- **The right way up.** A camera writes the sensor's rows and a note saying
+  which way it was held; the note is read, so a portrait is a portrait.
+- **The order a person reads in**: `IMG_9` before `IMG_10`, which plain byte
+  order gets exactly backwards. Six sort orders, folders first in all of them,
+  hidden names on request.
+- **Turn, slideshow, and the details** — how many pixels, how large on disk,
+  when it was written.
+- **Somewhere else to look**: *Open another folder* puts the question to this
+  desktop's own file chooser through the portal, and draws the toolkit's own
+  where there is no portal to ask.
 
-One number drives the whole of it — where the picture is, how round its corners
-are, how far the wall has stepped back — so that all of them land on the same
-frame.
+![Actual size](docs/zoom.png)
 
-**The card grows into its own thumbnail while the full-sized picture is read.**
-A large photograph takes a moment, and the thumbnail is the picture that was
-pressed, so there is something to look at from the first frame rather than an
-empty rectangle and the word *Reading…*. The crop a card puts on a thumbnail
-unwinds as it grows: a card fills itself with the picture and the viewer shows
-the whole of it, and easing between the two is what makes the first frame the
-card exactly and the last the photograph exactly.
+## Controls
 
-## The controls
-
-The whole point of the design language is that a controller, a keyboard and a
-pointer are one interface rather than three. Nothing here is a controller
-*mode*.
+A controller, a keyboard and a pointer are one interface rather than three.
+Nothing here is a controller *mode*.
 
 | | A pad | A keyboard, a mouse |
 |---|---|---|
@@ -86,138 +92,60 @@ and, on a keyboard alone: `+` `-` zoom a stop, `f` fit, `z` actual size, `r`
 and `R` turn, `i` the details, `n` `p` the next and previous picture, `g` back
 to the folder, `o` open another folder.
 
-**Back closes it at the top of the walk.** Whatever it was opened on is that
-top, and the legend says **Close** rather than Back wherever pressing it would
-close.
-
-* Opened on a **picture** — a file manager handing over a double-click —
-  somebody asked to see *that photograph*. The folder behind it is there so the
-  arrows have somewhere to go, not because they asked to browse it, so Back
-  closes. *Back to the folder*, on the Options menu, is how they say otherwise.
-* Opened on a **folder**, that folder is the top. Back walks up to it from
-  anything inside it and closes at it, rather than carrying on out through the
-  home directory to the root of the disk — three folders nobody asked to see,
-  and four presses to leave. *Up a folder* still goes above it, and doing so
-  moves the top with them.
-
-**Two kinds of zoom, because there are two kinds of control.** A button can
-only say *now*, so `A` walks a ladder of stops — fit, actual size, twice, four
-times — and springs between them. A trigger and a wheel say *how much*, so they
-zoom continuously and are deliberately not sprung: the smoothness is already in
-the hand, and a spring between the two would only feel like lag. A wheel zooms
-about the pointer, so the picture grows towards the hand rather than away from
-it. A picture is never taken out past fitting, and a press afterwards goes on
-from wherever the wheel actually left it.
-
-**One rule makes the directions unambiguous.** In the viewer a direction *pans*
-wherever the picture is larger than the screen, and *steps to the next picture*
-where it is not. Nothing has to be switched on, and the picture itself says
-which it is going to be. `A` walks the zoom stops — fit, actual size, twice,
-four times — so one button reaches every useful size, and panning keeps all
-four directions to itself.
-
-A held direction pans on an **accelerating ramp**, the way the shell moves a
-floating window: a rate that crosses a large photograph in reasonable time is
-far too fast to land with, and one that lands well never gets across.
-
-![Actual size](docs/zoom.png)
-
-## If the controller does nothing
+If a pad seems to be ignored:
 
 ```sh
 imagonsole --controllers
 ```
 
-There are two completely different reasons a pad can appear to be ignored, and
-from the outside they look identical: the application not reading it, or there
-being no gamepad on the machine to read. That flag says which.
+A controller whose driver is not in the kernel presents no gamepad at all, and
+from the outside that looks exactly like an application that is not reading it.
+That flag says which it is. `IMAGONSOLE_DEBUG_ACTIONS=1` prints every action
+the application is driven by.
 
-The second is more common than it sounds. **A controller whose driver is not in
-the kernel presents no gamepad at all** — a Steam Controller run outside the
-session shell that drives it appears as a mouse and a keyboard and nothing
-else, so there is nothing there for this or any other program to read. Under
-LineXinBar the shell is that driver and the pad is there; on a plain desktop,
-with neither the shell nor Steam running, `ls /dev/input/js*` finds nothing.
+## Install
 
-`IMAGONSOLE_DEBUG_ACTIONS=1` in the environment prints every action the
-application is driven by, and how far the triggers are pulled, which separates
-"the control never arrived" from "it arrived and did nothing".
-
-## What else it does
-
-- **The right way up.** A camera writes the sensor's rows and a note saying
-  which way it was held; the note is read, so a portrait is a portrait.
-- **The order a person reads in.** `IMG_9` before `IMG_10`, which plain byte
-  order gets exactly backwards — and a camera's own numbering is nearly always
-  the order a folder is meant to be in.
-- **Nine sort orders**, folders first in all of them, hidden names on request.
-- **Turn, slideshow, and the details** — how many pixels, how large on disk,
-  when it was written.
-- **Somewhere else to look**: *Open another folder* puts the question to this
-  desktop's own file chooser through the portal, and draws the toolkit's own
-  where there is no portal to ask.
-
-![The Options menu](docs/options.png)
-![The details](docs/details.png)
-
-## How it is built
-
-Nine hundred lines of interface and about five hundred of picture, over the
-toolkit. Two things are worth knowing before reading it.
-
-**It draws its own window**, which most applications built on the toolkit do
-not need to do. `Ui::picture` reads a file into one 512-pixel cell of a shared
-atlas — exactly right for the card of a grid, and about a quarter of what a
-photograph filling a 1080p screen needs. A viewer whose whole purpose is the
-picture cannot show a soft one. So the frame is composed by `lxb-render` as
-everywhere else, and the photograph is drawn over it at its own resolution, in
-a pass of this application's own: its own texture, its own mip chain, trilinear
-and anisotropic, in the same colour space as the page under it.
-
-**Everything else follows from that.** The photograph is drawn *over* the
-composed frame, so nothing the toolkit draws can appear on top of one. Rather
-than fight it, the picture is given a **stage** — a rectangle it may occupy —
-and everything else is laid out outside it. Opening the Options menu narrows
-the stage and the picture steps aside; a dialog or the file chooser takes the
-screen and the picture fades out. That is why the stage is animated state
-rather than a rectangle worked out while drawing.
-
-**A change of page is drawn twice over.** Both pages are on the screen while a
-photograph is opening or leaving, and the toolkit draws every quad of a layer
-before every word of it — so a name on a card is drawn *over* whatever the same
-frame puts on top of it, however late. `Ui::recede_behind` is the door on to
-both halves of the answer: it steps the wall back and fades it out, and it
-takes the words out from under the picture. It is the same call a menu makes
-over the page it opens on.
-
-```text
-src/main.rs      the window, the input, and --shot
-src/view.rs      what is being looked at, and what every control does to it
-src/draw.rs      putting it on the screen
-src/photo.rs     the photograph, at its own resolution
-src/library.rs   what is in a folder, and in what order
-src/legend.rs    what the buttons do, drawn rather than spelled out
-src/pad.rs       how far the triggers are pulled, and nothing else
-src/facts.rs     how large, how many pixels, and when
-```
-
-`pad.rs` is the one place this goes past `lxb-input`, and only for the
-triggers. An action is a thing that happened and a trigger is a quantity, and
-there is no honest way to say "sixty percent" in a list of actions — zoom is
-the one control here that genuinely wants the analogue. It maps nothing and has
-no opinion about any button: `lxb_toolkit::input` stays the only thing in this
-application that decides what a control *means*.
-
-## Build
+Rust 1.87 or newer, and the **lxb-toolkit development component** —
+`Cargo.toml` names its crate sources at `/usr/share/lxb-toolkit/crates`, and
+cargo compiles them into this binary, so nothing of the toolkit is linked at
+run time. Beside that: **alsa-lib** with its development files, which the
+interface sounds go out through.
 
 ```sh
-cargo build --release
-cargo run --release -- ~/Pictures
+cargo build --release --locked
+sudo ./packaging/install.sh --destdir / --prefix /usr
 ```
 
-It needs `lxb-toolkit` 0.9.0 installed — the crate sources it compiles against
-live in `/usr/share/lxb-toolkit/crates`. Nothing of the toolkit is linked at
-run time; cargo compiles it in.
+`install.sh` places the binary, the desktop entry, the icon and the AppStream
+data, and nothing else. For a user-local install instead, with `~/.local/bin`
+on `PATH`:
+
+```sh
+./packaging/install.sh --destdir / --prefix "$HOME/.local"
+```
+
+### As a package
+
+Every recipe calls that same `install.sh`, so a package cannot quietly ship a
+different set of files from the line above.
+
+```sh
+./packaging/build.sh check     # what a package would have to agree with
+./packaging/build.sh arch      # makepkg
+./packaging/build.sh debian    # dpkg-deb, on Debian or Ubuntu
+./packaging/build.sh fedora    # rpmbuild, on Fedora
+./packaging/build.sh nix       # the flake — the one target that does not
+                               # need lxb-toolkit installed already
+```
+
+Or with Nix and no checkout at all:
+
+```sh
+nix run github:Petexy/imagonsole
+```
+
+See [`packaging/README.md`](packaging/README.md) for why the toolkit is a
+*build* dependency and not a runtime one.
 
 ## Verify
 
@@ -227,53 +155,48 @@ cargo clippy --all-targets --locked -- -D warnings
 cargo fmt --check
 ```
 
-and the one worth knowing about:
-
-```sh
-imagonsole --shot page.png ~/Pictures --width 1600 --height 900
-```
-
 `--shot` writes one settled frame to a PNG **with no display at all**, through
 the same renderer and the same photograph pass the window uses. Every animation
-is put where it is going first, so what it photographs is the page at rest. It
-takes `--view`, `--details`, `--menu`, `--row N`, `--zoom N`, `--turn N` and
-`--pan left|right|up|down`, and each of them is applied *after* a frame has
-been measured — exactly as a real press is, because a direction only knows
-whether it pans or steps once the picture has been measured against the stage.
-Every screenshot above was taken that way.
-
-`--after SECONDS` is the exception, and the only way to photograph an
-*animation*: the page is settled first, then pressed, and the picture is taken
-exactly that long afterwards. Which press waits is
-`--then view|back|details|menu|next` (`--back` is the same as `--then back`);
-everything else asked for happens before the loop, settled.
+is put where it is going first, so what it photographs is the page at rest.
+`--after SECONDS` is the one way to photograph an *animation*: the page is
+settled, then pressed, then the picture is taken that long afterwards.
 
 ```sh
-imagonsole --shot opening.png ~/Pictures --view --after 0.17
-imagonsole --shot leaving.png ~/Pictures --view --back --after 0.17
+imagonsole --demo --shot page.png --width 1600 --height 900
+imagonsole --demo --shot zoom.png --width 1600 --height 900 --row 1 --view --zoom 1
 ```
 
-## Install
-
-```sh
-./packaging/install.sh --destdir /tmp/stage
-```
-
-or a real package:
-
-```sh
-./packaging/build.sh arch      # | debian | fedora | nix
-./packaging/build.sh check     # what a package would have to agree with
-```
-
-See [`packaging/README.md`](packaging/README.md).
+Every picture in this README was taken that way. `--demo` draws a made-up
+folder of photographs into this application's own cache and opens that: nothing
+of yours is read and nothing of yours is written.
 
 ## Languages
 
-English and Polish, in whichever one the session speaks — on LineXinBar, the
-one Settings > Language names. See [localization](docs/localization.md) for the
-catalogs, how to look at a page in the other language, and how to add one.
+Ten, compiled in: German, English (UK), English (US), Spanish, French, Hindi,
+Polish, Brazilian Portuguese, Russian and Simplified Chinese — in whichever one
+the session speaks, which on LineXinBar is the one Settings ▸ Language names.
+See [localization](docs/localization.md).
+
+## How it is put together
+
+| | |
+|---|---|
+| `src/main.rs` | The window, the input, and `--shot` |
+| `src/view.rs` | What is being looked at, and what every control does to it |
+| `src/draw.rs` | Putting it on the screen |
+| `src/photo.rs` | The photograph, at its own resolution |
+| `src/library.rs` | What is in a folder, and in what order |
+| `src/legend.rs` | What the buttons do, drawn rather than spelled out |
+| `src/pad.rs` | How far the triggers are pulled, and nothing else |
+| `src/demo.rs` | The made-up folder behind `--demo` |
+| `src/facts.rs` | How large, how many pixels, and when |
+
+**[`docs/design.md`](docs/design.md)** is the long answer: why this application
+draws its own window, what a *stage* is and why it is animated state, and how a
+change of page is drawn twice over.
 
 ## Licence
 
-[GPL-3.0-only](LICENSE), matching LineXinBar and the toolkit.
+[GPL-3.0-only](LICENSE), matching LineXinBar and the toolkit. It releases under
+the same version as LineXinBar, lxb-toolkit, Videonsole, SongOnSole,
+DistriBumpy and CEDM.
