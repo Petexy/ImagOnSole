@@ -2,7 +2,7 @@
 name = "imagonsole"
 version = "0.9.0"
 edition = "2021"
-rust-version = "1.87"
+rust-version = "1.90"
 license = "GPL-3.0-only"
 description = "A photo viewer in the LineXinBar design language, shown as Pictures"
 repository = "https://github.com/Petexy/imagonsole"
