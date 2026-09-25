@@ -1134,7 +1134,7 @@ checksum = "65b27460c2c92b037f3f94c538ed9a3342f3fdf923606781629ccb35f82d042a"
 
 [[package]]
 name = "imagonsole"
-version = "0.9.0"
+version = "0.9.1"
 dependencies = [
  "bytemuck",
  "gilrs",
@@ -1470,7 +1470,7 @@ checksum = "7f66e8d5d03f609abc3a39e6f08e4164ebf1447a732906d39eb9b99b7919ef39"
 
 [[package]]
 name = "lxb-input"
-version = "0.9.0"
+version = "0.9.1"
 dependencies = [
  "gilrs",
  "lxb-toolkit",
@@ -1479,14 +1479,14 @@ dependencies = [
 
 [[package]]
 name = "lxb-portal"
-version = "0.9.0"
+version = "0.9.1"
 dependencies = [
  "lxb-toolkit",
 ]
 
 [[package]]
 name = "lxb-render"
-version = "0.9.0"
+version = "0.9.1"
 dependencies = [
  "bytemuck",
  "glyphon",
@@ -1501,7 +1501,7 @@ dependencies = [
 
 [[package]]
 name = "lxb-sound"
-version = "0.9.0"
+version = "0.9.1"
 dependencies = [
  "lxb-toolkit",
  "rodio",
@@ -1509,7 +1509,7 @@ dependencies = [
 
 [[package]]
 name = "lxb-toolkit"
-version = "0.9.0"
+version = "0.9.1"
 dependencies = [
  "fluent-bundle",
  "unic-langid",
