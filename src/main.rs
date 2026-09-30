@@ -31,7 +31,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use lxb_input::Controls;
-use lxb_render::{Spot, Ui, WallpaperClock};
+use lxb_render::{Cadence, Next, Spot, Ui, WallpaperClock};
 use lxb_sound::Sounds;
 use lxb_toolkit::{
     accent::Accent,
@@ -125,8 +125,36 @@ fn window(arguments: &[String]) -> Result<(), String> {
         .map_err(|err| err.to_string())
 }
 
+/// The low-end pace: while something moves, a frame each time the display
+/// shows the last one, or every other refresh on a device that cannot keep up
+/// (see `lxb_render::Cadence`); a frame every [`LOW_END_STILL`] while nothing
+/// does; the controller read every [`LOW_END_POLL`] in between. The toolkit's
+/// own numbers.
+const LOW_END_STILL: std::time::Duration = std::time::Duration::from_secs(1);
+/// And while a slideshow holds a photograph: nothing moves, but the hold is
+/// counted by the frames, which count at most a tenth of a second each.
+const LOW_END_SLIDESHOW: std::time::Duration = std::time::Duration::from_millis(100);
+const LOW_END_POLL: std::time::Duration = std::time::Duration::from_millis(16);
+const LOW_END_SETTLING: std::time::Duration = std::time::Duration::from_secs(1);
+
 struct Application {
     instance: wgpu::Instance,
+    /// Low-end hardware mode, as the shell's setting and this machine's
+    /// renderer answer it — a still wallpaper, the plain materials and few
+    /// frames while nothing moves — and when the next frame is due in it.
+    low_end: bool,
+    next_frame: std::time::Instant,
+    /// In low-end mode the controller is read between frames too, and what it
+    /// said waits here for the frame it asked for; and when anything was last
+    /// pressed, pulled or moved.
+    next_poll: std::time::Instant,
+    waiting: Vec<Action>,
+    touched: std::time::Instant,
+    /// The low-end pace while something moves, and whether a redraw was asked
+    /// for as the last frame went out — so the one that arrives is the display
+    /// saying it showed it.
+    cadence: Cadence,
+    answer_asked: bool,
     window: Option<Arc<Window>>,
     surface: Option<wgpu::Surface<'static>>,
     ui: Option<Ui>,
@@ -198,6 +226,13 @@ impl Application {
         let pad_in_hand = controls.pads() > 0;
         Application {
             instance: lxb_render::instance(),
+            low_end: false,
+            next_frame: std::time::Instant::now(),
+            next_poll: std::time::Instant::now(),
+            waiting: Vec::new(),
+            touched: std::time::Instant::now(),
+            cadence: Cadence::default(),
+            answer_asked: false,
             window: None,
             surface: None,
             ui: None,
@@ -340,6 +375,9 @@ impl ApplicationHandler for Application {
                 return;
             }
         };
+        // Made from the window, so a machine with no Vulkan driver can still
+        // draw through GL, which needs the display.
+        self.instance = lxb_render::instance_for(window.clone());
         let surface = match self.instance.create_surface(window.clone()) {
             Ok(surface) => surface,
             Err(err) => {
@@ -365,6 +403,8 @@ impl ApplicationHandler for Application {
         };
 
         configure(&surface, &ui, size.width, size.height);
+        self.low_end = self.theme.low_end_on(ui.software());
+        self.theme = self.theme.drawn(self.low_end);
         self.photos = Some(Photos::new(&ui.device, SURFACE));
         self.window = Some(window);
         self.surface = Some(surface);
@@ -378,6 +418,11 @@ impl ApplicationHandler for Application {
         let Some(window) = self.window.clone() else {
             return;
         };
+        if self.low_end && !matches!(event, WindowEvent::RedrawRequested) {
+            let now = std::time::Instant::now();
+            self.touched = now;
+            self.next_frame = now;
+        }
 
         match event {
             WindowEvent::CloseRequested => event_loop.exit(),
@@ -471,7 +516,49 @@ impl ApplicationHandler for Application {
         }
     }
 
-    fn about_to_wait(&mut self, _event_loop: &ActiveEventLoop) {
+    fn about_to_wait(&mut self, event_loop: &ActiveEventLoop) {
+        // A quiet program lets go of the sound output, so the machine's sound
+        // hardware can sleep; the next sound opens it again.
+        self.sounds.rest(std::time::Instant::now());
+        // In low-end hardware mode the window is drawn at the toolkit's own
+        // low-end pace: on the display's beat for a second after anything is
+        // pressed and while one photograph crosses to the next, ten frames a
+        // second while a slideshow holds one, and one frame a second
+        // otherwise. The controller is read sixty times a second
+        // between them, and what it says is drawn at once.
+        if self.low_end {
+            let now = std::time::Instant::now();
+            if now >= self.next_poll {
+                self.next_poll = now + LOW_END_POLL;
+                let actions = self.controls.poll(self.opened.elapsed());
+                self.pad.settle();
+                if !actions.is_empty() || self.pad.pull() != 0.0 {
+                    self.waiting.extend(actions);
+                    self.touched = now;
+                    self.next_frame = now;
+                }
+            }
+            if self.moving(now) || self.cadence.moved() {
+                self.next_frame = now + self.still_pace();
+                match self.cadence.next(now) {
+                    Next::Now if !self.answer_asked => {
+                        if let Some(window) = self.window.as_ref() {
+                            window.request_redraw();
+                        }
+                    }
+                    Next::At(beat) => self.next_frame = beat,
+                    _ => {}
+                }
+            } else if now >= self.next_frame {
+                if let Some(window) = self.window.as_ref() {
+                    window.request_redraw();
+                }
+                self.next_frame = now + self.still_pace();
+            }
+            event_loop
+                .set_control_flow(ControlFlow::WaitUntil(self.next_frame.min(self.next_poll)));
+            return;
+        }
         if let Some(window) = self.window.as_ref() {
             window.request_redraw();
         }
@@ -479,15 +566,49 @@ impl ApplicationHandler for Application {
 }
 
 impl Application {
+    /// Whether anything is moving, for the low-end pace: somebody has just
+    /// done something, or one photograph is crossing to the next.
+    fn moving(&self, now: std::time::Instant) -> bool {
+        now.saturating_duration_since(self.touched) < LOW_END_SETTLING
+            || self.view.leaving.is_some()
+    }
+
+    /// The low-end pace while nothing moves.
+    fn still_pace(&self) -> std::time::Duration {
+        if self.view.slideshow {
+            LOW_END_SLIDESHOW
+        } else {
+            LOW_END_STILL
+        }
+    }
+
     fn frame(&mut self, event_loop: &ActiveEventLoop, window: &Arc<Window>) {
         let now = std::time::Instant::now();
+        // A low-end redraw asked for as a frame went out arrives when the
+        // display has shown it; a device drawing at half the refresh then
+        // waits for the beat after.
+        if self.low_end {
+            if std::mem::take(&mut self.answer_asked) {
+                self.cadence.answered(now);
+            }
+            if self.moving(now) || self.cadence.moved() {
+                if let Next::At(beat) = self.cadence.next(now) {
+                    self.next_frame = beat;
+                    return;
+                }
+            }
+        }
         // An application stopped while it is hidden must not treat the time it
         // was away as one frame; clamp it, as the toolkit's own spring does.
         let dt = (now - self.last).as_secs_f32().clamp(0.0, 0.1);
         self.last = now;
 
         let size = window.inner_size();
-        let elapsed = self.wallpaper.elapsed_secs();
+        let elapsed = if self.low_end {
+            lxb_toolkit::settings::STILL_WALLPAPER_AT
+        } else {
+            self.wallpaper.elapsed_secs()
+        };
         let (Some(surface), Some(ui), Some(photos)) = (
             self.surface.as_ref(),
             self.ui.as_mut(),
@@ -522,7 +643,8 @@ impl Application {
         // it came from. After the measuring, so that a direction is answered
         // against the picture as it is this frame: whether it pans or steps to
         // the next picture depends on a size that was only just worked out.
-        let actions = self.controls.poll(self.opened.elapsed());
+        let mut actions = std::mem::take(&mut self.waiting);
+        actions.extend(self.controls.poll(self.opened.elapsed()));
         if !actions.is_empty() {
             self.pad_in_hand = self.controls.pads() > 0;
         }
@@ -584,6 +706,7 @@ impl Application {
         );
 
         use wgpu::CurrentSurfaceTexture as Acquired;
+        let mut presented = false;
         match surface.get_current_texture() {
             Acquired::Success(frame) | Acquired::Suboptimal(frame) => {
                 let view = frame
@@ -607,12 +730,30 @@ impl Application {
                     &placements,
                 );
                 ui.queue.submit(Some(encoder.finish()));
+                if self.low_end {
+                    window.pre_present_notify();
+                }
                 ui.queue.present(frame);
+                presented = true;
             }
             Acquired::Outdated | Acquired::Lost => configure(surface, ui, size.width, size.height),
             // Occluded, timed out, or refused: skip the frame rather than draw
             // one nobody will see.
             _ => {}
+        }
+        if self.low_end && presented {
+            let moving = self.moving(now);
+            self.cadence.drew(now, moving);
+            self.cadence.set_refresh(
+                window
+                    .current_monitor()
+                    .and_then(|monitor| monitor.refresh_rate_millihertz())
+                    .unwrap_or(0),
+            );
+            if moving {
+                window.request_redraw();
+                self.answer_asked = true;
+            }
         }
     }
 }

@@ -12,7 +12,8 @@
   # machinery does find for itself — it is in `buildInputs` below and not in
   # `openedAtRuntime`.
   alsa-lib,
-  # gilrs's libudev-sys needs libudev.pc on the pkg-config path in the sandbox.
+  # How the controllers are found: the toolkit's GilRs fork reaches libudev
+  # through libudev-sys, whose build script asks pkg-config for it.
   udev,
   # The design language, as a derivation. It is a *build* dependency and not a
   # runtime one: `lxb-render` is a Rust path dependency, so cargo compiles those
@@ -90,10 +91,10 @@ rustPlatform.buildRustPackage {
     runHook preInstall
 
     # install.sh reads the release directory of a target dir. The cargo hooks
-    # pass --target, so the real artifacts live under the triple dir; cargo
-    # still creates an empty-ish target/release for package/check side
-    # outputs, so detect by the binary's presence rather than by directory
-    # name or glob order.
+    # build with --target, so the binary is in target/<triple>/release;
+    # target/release exists as well, holding the build scripts cargo ran for
+    # the host, so the target dir is whichever one the binary is in rather
+    # than whichever one exists.
     targetDir="target"
     for d in target/*/release target/release; do
       if [ -e "$d/imagonsole" ]; then

@@ -24,6 +24,11 @@ the stage and the picture steps aside; a dialog or the file chooser takes the
 screen and the picture fades out. That is why the stage is animated state
 rather than a rectangle worked out while drawing.
 
+On a window standing on its side there is no room beside the photograph for
+the details, so there they are a sheet across the foot of the stage instead —
+as wide as the page, each line a caption and its value side by side, rising
+out of the row of hints — and the photograph steps up rather than aside.
+
 ## A change of page is drawn twice over
 
 Both pages are on the screen while a photograph is opening or leaving, and the

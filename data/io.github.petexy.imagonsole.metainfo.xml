@@ -108,6 +108,20 @@
   <content_rating type="oars-1.1"/>
 
   <releases>
+    <release version="0.9.3" type="development" date="2026-09-29">
+      <description>
+        <p>
+          Photos now opens on machines without a Vulkan graphics driver, such as older graphics chips and virtual machines.
+        </p>
+        <p>
+          On a device that cannot keep up, it follows the desktop's low-end hardware mode: a still background, simpler effects and fewer frames, with slideshows still smooth. It also lets go of the sound device when quiet.
+        </p>
+        <p>
+          This release shares its version with LineXinBar,
+          lxb-toolkit, CEDM, Videonsole, SongOnSole and DistriBumpy.
+        </p>
+      </description>
+    </release>
     <release version="0.9.2" type="development" date="2026-09-27">
       <description>
         <p>
